@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBTI Personality Test</title>
+  <style>
+    :root {
+      --bg: #f6faf6;
+      --panel: #ffffff;
+      --text: #1e2a22;
+      --muted: #6a786f;
+      --line: #dbe8dd;
+      --soft: #edf6ef;
+      --accent: #6c8d71;
+      --accent-strong: #4d6a53;
+      --shadow: 0 16px 40px rgba(47, 73, 55, 0.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, #f8fff8 0, #f6faf6 36%, #f2f7f3 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-top: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(127, 165, 134, 0.18), rgba(127, 165, 134, 0.02));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--accent-strong);
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      max-width: 680px;
+    }
+    .hero .sub {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+      max-width: 720px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 24px;
+    }
+
+    .mini-panel {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfefb, #f3f8f4);
+    }
+
+    .mini-panel h3 {
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .mini-panel ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .hero-minimal {
+      min-height: 48vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 42px 20px;
+    }
+    .hero-minimal::after { display: none; }
+    .hero-minimal h1 {
+      max-width: none;
+      margin: 0;
+    }
+    .hero-actions-single {
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      font: inherit;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+
+    .btn-primary {
+      background: var(--accent-strong);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(77, 106, 83, 0.18);
+      font-weight: 700;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent-strong);
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .test-wrap,
+    .result-wrap {
+      margin-top: 22px;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      flex: 1;
+      min-width: 240px;
+      height: 10px;
+      background: #edf3ee;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #97b59c, #5b7a62);
+      border-radius: inherit;
+      transition: width .22s ease;
+    }
+
+    .progress-text {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .question-title {
+      font-size: 16px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      transition: border-color .16s ease, background .16s ease, transform .16s ease;
+    }
+
+    .option:hover {
+      border-color: #bcd0c1;
+      background: #f8fcf9;
+    }
+
+    .option input {
+      margin-top: 3px;
+      accent-color: var(--accent-strong);
+      transform: scale(1.1);
+      flex-shrink: 0;
+    }
+
+    .option-code {
+      font-weight: 800;
+      color: var(--accent-strong);
+      min-width: 22px;
+    }
+
+    .actions-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding-top: 6px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .result-hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .type-box,
+    .score-box,
+    .dim-box,
+    .top3-box,
+    .about-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+    }
+
+    .type-kicker {
+      font-size: 12px;
+      color: var(--accent-strong);
+      margin-bottom: 8px;
+      letter-spacing: .05em;
+    }
+
+    .type-name {
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .type-subname {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .match {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--accent-strong);
+      font-weight: 700;
+    }
+
+    .type-desc {
+      margin-top: 18px;
+      line-height: 1.85;
+      font-size: 15px;
+      color: #304034;
+    }
+
+    .score-box h3,
+    .dim-box h3,
+    .top3-box h3,
+    .about-box h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .score-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .score-item .k {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .score-item .v {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent-strong);
+    }
+
+    .dim-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dim-pill {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .dim-pill .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .dim-pill .value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent-strong);
+    }
+
+    .top3-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .top3-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .top3-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .top3-item span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top3-score {
+      color: var(--accent-strong);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .about-box p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    
+    .result-layout {
+      display: grid;
+      gap: 18px;
+    }
+    .result-top {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .poster-box, .type-box, .analysis-box, .dim-box, .note-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+    }
+        .poster-box {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 280px;
+      overflow: hidden;
+      position: relative;
+      background:
+        radial-gradient(circle at top right, rgba(127,165,134,0.16), rgba(127,165,134,0) 40%),
+        linear-gradient(180deg, #ffffff, #f7fbf8);
+    }
+    .poster-box::after {
+      content: "";
+      position: absolute;
+      right: -46px;
+      bottom: -46px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(127,165,134,0.12), rgba(127,165,134,0.01));
+      pointer-events: none;
+    }
+    .poster-image {
+      width: 100%;
+      min-height: 220px;
+      max-height: 460px;
+      object-fit: contain;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.75);
+      position: relative;
+      z-index: 1;
+    }
+    .poster-box.no-image .poster-image {
+      display: none;
+    }
+    .poster-caption {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      position: relative;
+      z-index: 1;
+    }
+    .type-kicker {
+      font-size: 12px;
+      color: var(--accent-strong);
+      margin-bottom: 8px;
+      letter-spacing: .06em;
+    }
+    .type-name {
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+    .type-subname {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .match {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--accent-strong);
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .analysis-box h3, .dim-box h3, .note-box h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    .result-actions {
+      margin-top: 22px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .analysis-box p {
+      margin: 0;
+      color: #304034;
+      font-size: 15px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
+    .dim-list {
+      display: grid;
+      gap: 12px;
+    }
+    .dim-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+    }
+    .dim-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .dim-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .dim-item-score {
+      color: var(--accent-strong);
+      font-weight: 800;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .dim-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .note-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .author-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+      overflow: hidden;
+    }
+    .author-box summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .author-box summary::-webkit-details-marker { display: none; }
+    .author-box summary::after {
+      content: 'Expand';
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-strong);
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .author-box[open] summary::after {
+      content: 'Collapse';
+    }
+    .author-content {
+      border-top: 1px solid var(--line);
+      padding: 0 18px 18px;
+    }
+    .author-content p {
+      margin: 14px 0 0;
+      color: #304034;
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    .result-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+    @media (max-width: 860px) {
+      .result-top { grid-template-columns: 1fr; }
+    }
+
+@media (max-width: 860px) {
+      .hero-grid,
+      .result-hero {
+        grid-template-columns: 1fr;
+      }
+      .dim-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 600px) {
+      .shell { padding: 14px 12px 42px; }
+      .hero, .test-wrap, .result-wrap { padding: 16px; }
+      .hero h1 { font-size: 32px; }
+      .question-title { font-size: 15px; }
+      .dim-grid,
+      .score-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section id="intro" class="screen active">
+      <div class="hero card hero-minimal">
+        <h1>MBTI is over. SBTI is here.</h1>
+        <div class="hero-actions hero-actions-single">
+          <button id="startBtn" class="btn-primary">Start Test</button>
+        </div>
+        <div style="padding-top: 2rem; display: flex; flex-direction: column;">
+          <span>
+            Original Author: 
+            <a href="https://space.bilibili.com/417038183">Bilibili @蛆肉儿串儿</a>
+          </span>
+          <span>
+            Hosting: Cloudflare (Free)
+          </span>
+          <span>
+            Domain: Spaceship (Self-funded)
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section id="test" class="screen">
+      <div class="test-wrap card">
+        <div class="topbar">
+          <div class="progress"><span id="progressBar"></span></div>
+          <div class="progress-text" id="progressText">0 / 31</div>
+        </div>
+
+        <div id="questionList" class="question-list"></div>
+
+        <div class="actions-bottom">
+          <div class="hint" id="testHint">You can't proceed until all questions are answered. The world's already chaotic enough. At least finish what you started.</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="backIntroBtn" class="btn-secondary">Back to Home</button>
+            <button id="submitBtn" class="btn-primary" disabled>Submit & View Results</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    
+    <section id="result" class="screen">
+      <div class="result-wrap card">
+        <div class="result-layout">
+          <div class="result-top">
+            <div class="poster-box" id="posterBox">
+              <img id="posterImage" class="poster-image" alt="Personality result image" />
+              <div id="posterCaption" class="poster-caption">Didn't see that coming, did you?</div>
+            </div>
+
+            <div class="type-box">
+              <div class="type-kicker" id="resultModeKicker">Your Main Type</div>
+              <div class="type-name" id="resultTypeName">CTRL (The Controller)</div>
+              <div class="match" id="matchBadge">Match 92%</div>
+              <div class="type-subname" id="resultTypeSub">System note will appear here.</div>
+            </div>
+          </div>
+
+          <div class="analysis-box">
+            <h3>Interpretation</h3>
+            <p id="resultDesc"></p>
+          </div>
+
+          <div class="dim-box">
+            <h3>15-Dimension Scores</h3>
+            <div id="dimList" class="dim-list"></div>
+          </div>
+
+          <div class="note-box">
+            <h3>Friendly Reminder</h3>
+            <p id="funNote">This test is for entertainment only. Do not use it for diagnosis, hiring, dating, breakups, summoning spirits, fortune-telling, or life sentencing.</p>
+          </div>
+
+          <details class="author-box">
+            <summary>A Note from the Creator</summary>
+            <div class="author-content">
+              <p>This test originally debuted by Bilibili creator '蛆肉儿串儿' (UID417038183). The initial goal was to convince a friend who loves drinking to quit.</p>
+              <p>The creator's own personality is SHIT (The Cynic), so they roasted everyone equally. Sorry about that! But the creator is a stunning beauty, so you'll probably forgive them. Feel free to follow them on Bilibili.</p>
+              <p>This test struggles to perfectly balance entertainment and accuracy. Some personality descriptions may be vague or completely off (e.g., Dior-s might not actually be a loser). Apologies if any offense is taken!</p>
+              <p>Given limited time and energy, this was thrown together for fun. Improvements will come later. Please do not use this for commercial purposes.</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="result-actions">
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="restartBtn" class="btn-secondary">Retake Test</button>
+            <button id="toTopBtn" class="btn-primary">Back to Home</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  
+  <script>
+    const dimensionMeta = {
+      S1: { name: 'S1 Self-Esteem', model: 'Self Model' },
+      S2: { name: 'S2 Self-Clarity', model: 'Self Model' },
+      S3: { name: 'S3 Core Values', model: 'Self Model' },
+      E1: { name: 'E1 Attachment Security', model: 'Emotional Model' },
+      E2: { name: 'E2 Emotional Investment', model: 'Emotional Model' },
+      E3: { name: 'E3 Boundaries & Dependency', model: 'Emotional Model' },
+      A1: { name: 'A1 Worldview', model: 'Attitude Model' },
+      A2: { name: 'A2 Rules & Flexibility', model: 'Attitude Model' },
+      A3: { name: 'A3 Sense of Meaning', model: 'Attitude Model' },
+      Ac1: { name: 'Ac1 Motivational Drive', model: 'Action Model' },
+      Ac2: { name: 'Ac2 Decision Style', model: 'Action Model' },
+      Ac3: { name: 'Ac3 Execution Mode', model: 'Action Model' },
+      So1: { name: 'So1 Social Initiative', model: 'Social Model' },
+      So2: { name: 'So2 Interpersonal Boundaries', model: 'Social Model' },
+      So3: { name: 'So3 Expression & Authenticity', model: 'Social Model' }
+    };
+    
+    const questions = [
+      {
+        id: 'q1', dim: 'S1',
+        text: 'I\'m not just a loser, I\'m a joker, a nobody. Never been in a relationship, timid and insecure. My youth is just one long daydream, imagining a girl holding my hand, walking down the street, hanging out. Reality? I leeched off my parents\' money, went to a crappy school, and I\'m just killing time until I get a dead-end job. No dreams, no skills, no future. Every time I see people joking about losers online, I wanna cry. I\'m a sewer rat peeking through the manhole cover at a world I\'ll never belong to. Please, just give us clowns a break. I can\'t keep soaking my pillowcase in tears every morning.',
+        options: [
+          { label: 'I\'m crying...', value: 1 },
+          { label: 'What is this...', value: 2 },
+          { label: 'That\'s not me!', value: 3 }
+        ]
+      },
+      {
+        id: 'q2', dim: 'S1',
+        text: 'I\'m not good enough. Everyone around me is better than I am.',
+        options: [
+          { label: 'True', value: 1 },
+          { label: 'Sometimes', value: 2 },
+          { label: 'False', value: 3 }
+        ]
+      },
+      {
+        id: 'q3', dim: 'S2',
+        text: 'I know exactly who I really am.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      },
+      {
+        id: 'q4', dim: 'S2',
+        text: 'I have something I genuinely pursue deep down.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      },
+      {
+        id: 'q5', dim: 'S3',
+        text: 'I must keep climbing, keep getting better, more successful.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      },
+      {
+        id: 'q6', dim: 'S3',
+        text: 'Other people\'s opinions mean jack squat to me.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      },
+      {
+        id: 'q7', dim: 'E1',
+        text: 'Your partner hasn\'t replied for 5 hours, then texts "Sorry, had explosive diarrhea." What do you think?',
+        options: [
+          { label: 'No one sh*ts for 5 hours straight. They\'re hiding something.', value: 1 },
+          { label: 'I\'m torn between trusting them and being suspicious.', value: 2 },
+          { label: 'Maybe they really had a rough day in the bathroom.', value: 3 }
+        ]
+      },
+      {
+        id: 'q8', dim: 'E1',
+        text: 'I often worry about being abandoned in relationships.',
+        options: [
+          { label: 'Yes', value: 1 },
+          { label: 'Sometimes', value: 2 },
+          { label: 'No', value: 3 }
+        ]
+      },
+      {
+        id: 'q9', dim: 'E2',
+        text: 'I swear on everything, I take every relationship seriously!',
+        options: [
+          { label: 'Not really', value: 1 },
+          { label: 'Maybe?', value: 2 },
+          { label: 'Yes! (Proud face, hand over heart)', value: 3 }
+        ]
+      },
+      {
+        id: 'q10', dim: 'E2',
+        text: 'You\'re dating someone who is kind, gentle, loyal, honest, eloquent, wise, humble, gorgeous—basically a walking green flag. How do you react?',
+        options: [
+          { label: 'I won\'t fall too deep, no matter how great they are.', value: 1 },
+          { label: 'Somewhere in between A and C.', value: 2 },
+          { label: 'I\'d cherish them deeply. I might become a total simp.', value: 3 }
+        ]
+      },
+      {
+        id: 'q11', dim: 'E3',
+        text: 'After starting a relationship, your partner is super clingy. How do you feel?',
+        options: [
+          { label: 'That\'s awesome.', value: 1 },
+          { label: 'Whatever, I don\'t mind.', value: 2 },
+          { label: 'I prefer keeping my personal space.', value: 3 }
+        ]
+      },
+      {
+        id: 'q12', dim: 'E3',
+        text: 'I value personal space highly in any relationship.',
+        options: [
+          { label: 'I prefer depending on each other.', value: 1 },
+          { label: 'Depends on the situation.', value: 2 },
+          { label: 'Yes! (Said with conviction)', value: 3 }
+        ]
+      },
+      {
+        id: 'q13', dim: 'A1',
+        text: 'Most people are good-natured.',
+        options: [
+          { label: 'There\'s more evil out there than hemorrhoids.', value: 1 },
+          { label: 'Maybe.', value: 2 },
+          { label: 'Yes, I believe there are more good people.', value: 3 }
+        ]
+      },
+      {
+        id: 'q14', dim: 'A1',
+        text: 'An adorable little girl skips toward you on the street (cute from every angle—front, side, iPhone, Samsung, Google Pixel—just overwhelmingly cute). She hands you a lollipop. What\'s your thought?',
+        options: [
+          { label: 'Aww, she\'s so sweet! Giving me candy!', value: 3 },
+          { label: 'Uhh... *scratches head in confusion*', value: 2 },
+          { label: 'Is this a scam? I better walk away.', value: 1 }
+        ]
+      },
+      {
+        id: 'q15', dim: 'A2',
+        text: 'Finals are coming. School mandates evening study hall. Skipping deducts points. But tonight, your crush invited you to play Fortnite (or whatever the hot game is). What do you do?',
+        options: [
+          { label: 'Screw it, I\'m playing! It\'s just one night!', value: 1 },
+          { label: 'I\'ll just ask for a leave of absence.', value: 2 },
+          { label: 'Finals are coming, dude. Priorities.', value: 3 }
+        ]
+      },
+      {
+        id: 'q16', dim: 'A2',
+        text: 'I like breaking rules. I hate being constrained.',
+        options: [
+          { label: 'Agree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Disagree', value: 3 }
+        ]
+      },
+      {
+        id: 'q17', dim: 'A3',
+        text: 'I usually have goals when I do things.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      },
+      {
+        id: 'q18', dim: 'A3',
+        text: 'One day I realized: There\'s no damn meaning to life. Humans are just animals controlled by hormones and desires. Hungry? Eat. Tired? Sleep. Horny? Mate. We\'re no different from pigs or dogs.',
+        options: [
+          { label: 'That\'s about right.', value: 1 },
+          { label: 'Maybe, maybe not.', value: 2 },
+          { label: 'That\'s complete nonsense.', value: 3 }
+        ]
+      },
+      {
+        id: 'q19', dim: 'Ac1',
+        text: 'I act mainly to achieve progress and results, not to avoid risks and trouble.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      },
+      {
+        id: 'q20', dim: 'Ac1',
+        text: 'You\'ve been sitting on the toilet for 30 minutes, constipated and miserable. What do you do?',
+        options: [
+          { label: 'Wait another 30 minutes. Maybe something will happen.', value: 1 },
+          { label: 'Slap my own butt and yell, "Come on, you stupid colon, WORK!"', value: 2 },
+          { label: 'Use a laxative. Just get it over with.', value: 3 }
+        ]
+      },
+      {
+        id: 'q21', dim: 'Ac2',
+        text: 'I make decisions decisively. I hate hesitating.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      },
+      {
+        id: 'q22', dim: 'Ac2',
+        text: 'This question is blank. Just pick one blindly.',
+        options: [
+          { label: 'After deep thought, I think it\'s A?', value: 1 },
+          { label: 'Uhh, maybe B?', value: 2 },
+          { label: 'When in doubt, pick C?', value: 3 }
+        ]
+      },
+      {
+        id: 'q23', dim: 'Ac3',
+        text: 'Someone calls you "highly disciplined and efficient." Which internal response is closest?',
+        options: [
+          { label: 'I only get stuff done when the deadline is literally on fire.', value: 1 },
+          { label: 'Eh, sometimes.', value: 2 },
+          { label: 'Yes, things need to get done properly.', value: 3 }
+        ]
+      },
+      {
+        id: 'q24', dim: 'Ac3',
+        text: 'I often make plans, ____.',
+        options: [
+          { label: 'But plans rarely survive first contact with reality.', value: 1 },
+          { label: 'Sometimes I finish them, sometimes I don\'t.', value: 2 },
+          { label: 'I hate when my plans get disrupted.', value: 3 }
+        ]
+      },
+      {
+        id: 'q25', dim: 'So1',
+        text: 'You made online friends playing a co-op game and they invited you to a real-life meetup. Your thought?',
+        options: [
+          { label: 'Online banter is one thing. Meeting IRL is kinda scary.', value: 1 },
+          { label: 'Sure, I\'ll chat with whoever shows up.', value: 2 },
+          { label: 'I\'ll dress up and be super friendly. You never know, right?', value: 3 }
+        ]
+      },
+      {
+        id: 'q26', dim: 'So1',
+        text: 'A friend brings their friend to hang out. You\'re most likely to...',
+        options: [
+          { label: 'Feel a bit distant. I don\'t want to mess up the original dynamic.', value: 1 },
+          { label: 'See how it goes. If they\'re cool, we\'re cool.', value: 2 },
+          { label: 'Friend of a friend is my friend! Let\'s all be friendly.', value: 3 }
+        ]
+      },
+      {
+        id: 'q27', dim: 'So2',
+        text: 'I have an invisible electric fence around my personal space. Get too close and alarms go off.',
+        options: [
+          { label: 'Agree', value: 3 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Disagree', value: 1 }
+        ]
+      },
+      {
+        id: 'q28', dim: 'So2',
+        text: 'I crave close relationships with people I trust. Like we\'re long-lost family.',
+        options: [
+          { label: 'Agree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Disagree', value: 3 }
+        ]
+      },
+      {
+        id: 'q29', dim: 'So3',
+        text: 'Sometimes you have a different, negative opinion but don\'t say it. Usually, the reason is:',
+        options: [
+          { label: 'That rarely happens. I speak my mind.', value: 1 },
+          { label: 'I don\'t want to make things awkward.', value: 2 },
+          { label: 'I don\'t want people to know my dark side.', value: 3 }
+        ]
+      },
+      {
+        id: 'q30', dim: 'So3',
+        text: 'I show different sides of myself to different people.',
+        options: [
+          { label: 'Disagree', value: 1 },
+          { label: 'Neutral', value: 2 },
+          { label: 'Agree', value: 3 }
+        ]
+      }
+    ];
+
+    const specialQuestions = [
+      {
+        id: 'drink_gate_q1',
+        special: true,
+        kind: 'drink_gate',
+        text: 'What are your hobbies?',
+        options: [
+          { label: 'Eating, sleeping, existing', value: 1 },
+          { label: 'Arts & culture', value: 2 },
+          { label: 'Drinking', value: 3 },
+          { label: 'Fitness / Gym', value: 4 }
+        ]
+      },
+      {
+        id: 'drink_gate_q2',
+        special: true,
+        kind: 'drink_trigger',
+        text: 'What\'s your attitude toward drinking?',
+        options: [
+          { label: 'A little buzz is nice. I can\'t handle much.', value: 1 },
+          { label: 'I keep whiskey in my Hydro Flask. It\'s just water to me. Alcohol is convincing.', value: 2 }
+        ]
+      }
+    ];
+
+    const TYPE_LIBRARY = {
+  "CTRL": {
+    "code": "CTRL",
+    "cn": "The Controller",
+    "intro": "Didn't see that coming, did you?",
+    "desc": "Congratulations, you've unlocked the rarest personality in the United States! You are the natural enemy of entropy. 99.99% of so-called successful people are just cheap knockoffs of you. CTRL is a walking Task Manager. What normies call 'rules' are just default factory settings to you. What mortals call 'plans' are just idle doodles. Having a CTRL friend means your life navigation finally gets precise. They'll 'Ctrl+S' your life just before you derail, then drag you back on track with unassailable logic. They are the last backup of your chaotic existence, the only glowing restart button before the universe crashes."
+  },
+  "ATM-er": {
+    "code": "ATM-er",
+    "cn": "The Giver",
+    "intro": "You think I'm made of money?",
+    "desc": "Congratulations! You've unlocked the world's rarest personality. You might become an unsolved mystery of finance—ATM-er doesn't necessarily 'give money', but they are always 'dispensing'. Dispensing time, energy, patience, peaceful nights. Like an old, sturdy ATM, people insert their anxiety and drama, and you spit out 'Don't worry, I got you.' Your life is a grand, unapplauded solo act of paying the tab. You bear a waterfall of demands with rock-solid reliability. Only late at night, looking at the mental receipts, do you sigh: 'Damn this inconvenient sense of responsibility.'"
+  },
+  "Dior-s": {
+    "code": "Dior-s",
+    "cn": "The Loser",
+    "intro": "Just wait for my redemption arc.",
+    "desc": "Congrats! You're not a loser. You're the spiritual heir of Diogenes. Dior-s stands for Diogenes' Original Realist - sage. It's the ultimate rejection of consumerist traps and hustle culture brainwashing. They aren't 'unambitious'; they've just realized that every 'step up' leads to a fancier cage. While others chase trends and get flattened by the waves of time, Dior-s is chilling in their philosophical barrel, achieving peak enlightenment. They believe only in tested truths: 1) Lying down is comfier than standing. 2) You gotta eat when it's mealtime."
+  },
+  "BOSS": {
+    "code": "BOSS",
+    "cn": "The Boss",
+    "intro": "Give me the wheel. I'm driving.",
+    "desc": "BOSS is the person who always has their hands on the steering wheel. Even when the gas light is on and the GPS is speaking nonsense, they mutter 'I'll drive' and somehow get you there. This personality obeys unique physics: The Law of Perpetual Ascent. BOSS views life like a veteran player watching a tutorial level. Efficiency is faith. Order is breathing. They don't 'have leadership qualities'; they are a human aura generator that makes the air around them serious and productive. Their idea of 'self-improvement' is a normal person's 'self-torture'. Learn a language? Done. Certifications? Acquired. Colonize Mars? On the to-do list. You call it sweaty; they just think you're weak."
+  },
+  "THAN-K": {
+    "code": "THAN-K",
+    "cn": "The Grateful One",
+    "intro": "I thank the heavens! I thank the earth!",
+    "desc": "Congratulations! You've unlocked the rarest personality. You should be thanking me! Stuck in traffic? You say, 'I'm grateful for this moment to listen to this song and observe the beautiful anxiety on other drivers' faces.' THAN-K possesses a gentle temperament and oceanic acceptance. In their world, there are no bad people, only 'friends not yet touched by the light of gratitude.' Having a THAN-K friend is like having an unending tower of positive energy. They could find a Van Gogh painting in a patch of mold on the wall."
+  },
+  "OH-NO": {
+    "code": "OH-NO",
+    "cn": "The Oh-Noer",
+    "intro": "Oh no! How am I this personality?!",
+    "desc": "'Oh no!' is not a scream of fear; it's high-level wisdom. When a normal person sees a glass on a table edge, an Oh-Noer sees a Rube Goldberg machine of water spills, short circuits, electrical fires, global economic collapse, and the heat death of the universe. With a soul-deep 'Oh, no!', they move the glass to the center of the table and put a coaster under it. They have an almost pathological respect for 'boundaries': yours is yours, mine is mine. All accidents are strangled in their cradle by that preemptive 'Oh, no!' They are the guardians of order, the last decent, high-strung people in a messy world."
+  },
+  "GOGO": {
+    "code": "GOGO",
+    "cn": "The Doer",
+    "intro": "gogogo~ Let's roll.",
+    "desc": "Research indicates the GOGO brain is fundamentally different. They live in a 'What You See Is What You Get' reality. Their motto is brutally simple: If I close my eyes, it's dark. If I spend all my money, I'm broke. If I'm in the crosswalk, I'm a pedestrian. Flawless logic. While others debate 'chicken or egg,' GOGO has made a burrito out of both and called it 'The Ultimate Omelet.' They don't 'solve problems'; they 'clear notifications.' For them, there are only two states: Done, and About To Be Done."
+  },
+  "SEXY": {
+    "code": "SEXY",
+    "cn": "The Siren",
+    "intro": "You're a natural-born siren!",
+    "desc": "When you enter a room, the smart lights dim automatically to conserve energy because they recognize a natural siren. When you smile, the humidity drops because water vapor condenses into cartoon hearts in people's eyes. Anyone can feel an abnormal level of attention around you. Legend has it that if enough SEXY personalities gather for a party, their combined charisma could warp spacetime, making attendees feel like 'time slowed down.' They don't need to try hard. Their existence is already an overly ornate sonnet."
+  },
+  "LOVE-R": {
+    "code": "LOVE-R",
+    "cn": "The Romantic",
+    "intro": "Too much love. Reality feels a bit barren.",
+    "desc": "LOVE-R is a rare creature surviving from ancient myth. You are the last, anachronistic troubadour of this concrete jungle era. Your emotional processor isn't binary; it's a rainbow. A falling leaf isn't just 'autumn' to a LOVE-R; it's a thirteen-act tragicomedy about reincarnation, sacrifice, and unspoken love. Your inner world is a theme park that never closes, and you spend life searching for the one person who understands the park map and will ride the carousel with you until the universe ends."
+  },
+  "MUM": {
+    "code": "MUM",
+    "cn": "The Mom",
+    "intro": "Maybe... can I call you mom...?",
+    "desc": "Congratulations, you've unlocked the rarest Mom personality. Before chaos existed, before the first star burped, there was MUM. Their core is softness, high empathy, knowing when to pause, when to say 'forget it.' MUM heals others' unhappiness like a doctor. But when MUM cries, the dose of medicine they give themselves is always smaller than what they give others. MUM is often gentle with everyone else, but discounts their own gentleness."
+  },
+  "FAKE": {
+    "code": "FAKE",
+    "cn": "The Impostor",
+    "intro": "There are no humans left.",
+    "desc": "SCP Foundation Urgent Report: Item # SCP-XXXX 'The Impostor'. In social settings, they are flawless. They switch personas faster than you switch streaming services. One second: Ride-or-die bestie mode. Next second (boss walks in): Responsible Employee mode. Even their skin texture seems to adjust. Thought you made a real connection? Wake up. You just met a high-performance, adaptive android. Late at night, they peel off the masks one by one, only to find nothing underneath. The masks *are* them."
+  },
+  "OJBK": {
+    "code": "OJBK",
+    "cn": "The Whatever",
+    "intro": "When I say 'whatever', I mean it.",
+    "desc": "Let's embrace the rugged essence: OJBK. This isn't a personality; it's a ruling philosophy. When mortals face the existential crisis of 'Pizza or Tacos?', burning precious calories, OJBK surveys the options with imperial indifference: 'It's all good.' This isn't indecision; it's telling you that your mortal choices are but dust to an emperor. Why argue? Debating the future of the universe with an amoeba is pointless. Why be pedantic? An emperor doesn't care which way the dust blows."
+  },
+  "MALO": {
+    "code": "MALO",
+    "cn": "The Monkey",
+    "intro": "Life's a side quest, and I'm just a monkey.",
+    "desc": "Friend, you're not 'young at heart.' You just never evolved. Your soul is still swinging from vines, eyes lighting up at the sight of a banana. When human ancestors climbed down and started wearing suits, MALO's ancestors watched from a nearby tree, scratched their butts, and squeaked in disdain. They saw through it: 'Civilization' is the most boring pay-to-win game ever. Rules are meant to be bent, ceilings are for hanging upside down, and conference rooms are for backflips. MALO is a whimsical idea that fell out of a giant plot hole and forgot to close the door."
+  },
+  "JOKE-R": {
+    "code": "JOKE-R",
+    "cn": "The Joker",
+    "intro": "Turns out we're all clowns.",
+    "desc": "Note: JOKE-R isn't a 'person'; it's a clown wearing jokes like a coat. Peel back one layer: a joke. Another layer: a meme. Keep peeling until you reach the center and it's... empty. Just a faint echo: 'Ha, didn't see that coming, did ya?' JOKE-R is the life of the party, the designated firepower of social gatherings. They keep the vibe alive. Everyone laughs, especially them—using the loudest laughter to drown out the sound of their own heart cracking."
+  },
+  "WOC!": {
+    "code": "WOC!",
+    "cn": "The WTF-er",
+    "intro": "WTF, how am I this personality?",
+    "desc": "We've discovered a strange creature: The WTF-er. They run two separate operating systems. 'Surface OS' emits startled exclamations: 'WTF!' 'No way!' 'Huh?!' Meanwhile, 'Background OS' calmly analyzes: 'Yep. Exactly as I predicted.' WTF-ers don't meddle. They know that explaining logic to an idiot is like trying to prop up wet toilet paper—messy and pointless. So they grip a metaphorical weed of wisdom and offer a heartfelt 'WTF!' as the highest tribute to this insane world."
+  },
+  "THIN-K": {
+    "code": "THIN-K",
+    "cn": "The Thinker",
+    "intro": "Deep thought in progress... 100s",
+    "desc": "Research shows THIN-K brains are fundamentally different. As the name implies, your brain is in a constant state of buffering. You judge information harshly, demanding evidence, logic, and a full background check on the author's ideological leanings three generations back. In this age of hot takes, you don't blindly follow. You weigh pros and cons, fiercely guarding your mental space. People see you zoning out? Foolish mortals. That's not daydreaming; that's your brain archiving, encrypting, and deleting today's data intake."
+  },
+  "SHIT": {
+    "code": "SHIT",
+    "cn": "The Cynic",
+    "intro": "This world is a steaming pile.",
+    "desc": "Congratulations! SHIT is the rarest known personality in the universe. Calling something 'dogsh*t' isn't complaining; it's a sacred ritual. Their behavior is a paradox. Mouth: 'This project is absolute garbage.' Hands: *Opens Excel, starts building complex function models and Gantt charts.* Mouth: 'My coworkers are all idiots.' Hands: *Fixes their mess at 2 AM while grumbling.* Mouth: 'This world is a dumpster fire. End it all.' Actions: *Wakes up at 7 AM, commutes on the sh*tty train, to do the sh*tty job.* Don't be scared of the alarm bells; that's just the sound of them rolling up their sleeves to save the world again."
+  },
+  "ZZZZ": {
+    "code": "ZZZZ",
+    "cn": "The Opossum",
+    "intro": "I'm not dead. Just sleeping.",
+    "desc": "Congratulations, you've unlocked the rarest 'Playing Dead' personality. You can ignore 99+ unread messages, but when the '@everyone Deadline is in 30 minutes' notification hits, you rise from your slumber like a crypt keeper and type 'Got it.' Then, in 29 minutes, you submit something passable. Only the sacred Deadline can awaken you. You prove a universal truth: Sometimes doing nothing is the best way to avoid doing something wrong."
+  },
+  "POOR": {
+    "code": "POOR",
+    "cn": "The Laser-Focused",
+    "intro": "I'm broke, but I'm focused.",
+    "desc": "Congratulations! You've unlocked POOR. This 'poverty' isn't about your wallet; it's about resource reallocation after a Marie Kondo cleanse of desires. Others scatter their energy like confetti. You focus yours like a laser beam. Whatever you point it at starts smoking. POOR's world is simple: Mute the noise, go hard on what matters. Socializing? Vanity? Clout chasing? Sorry, no bandwidth. You're not low on resources; you've just poured everything into one hole in the ground. Looks like poverty, functions like a mineshaft. Once you decide something's worth drilling, the outside world is just white noise."
+  },
+  "MONK": {
+    "code": "MONK",
+    "cn": "The Monk",
+    "intro": "No worldly desires.",
+    "desc": "While others seek enlightenment in loud bars, MONK seeks the Dao at home. Having seen through the illusions of the world, they desire no idle chatter to disturb their cultivation. Their personal space is a barrier, a sacred mountain, an absolute domain. Enter at your own risk of spiritual suffocation. MONKs don't cling. In their worldview, celestial bodies maintain harmony by keeping millions of miles apart. So why can't people?"
+  },
+  "IMSB": {
+    "code": "IMSB",
+    "cn": "The Overthinker",
+    "intro": "Seriously? Am I really an idiot?",
+    "desc": "Congratulations! You don't even qualify as human! You've unlocked the one-in-a-million IMSB personality. Inside an IMSB brain live two immortal warriors locked in eternal combat. One screams: 'LET'S GOOO! Ask for their number! Shoot your shot!' The other counters: 'Why would they want *you*? You're just gonna embarrass yourself.' The result? You stare at their back until they vanish, then Google 'how to stop being socially awkward.' IMSB isn't stupid. Your internal monologue is just longer than the entire Marvel Cinematic Universe."
+  },
+  "SOLO": {
+    "code": "SOLO",
+    "cn": "The Loner",
+    "intro": "I'm crying. How am I a loner?",
+    "desc": "Congratulations! You've unlocked the rarest SOLO personality. Don't cry. Coronations are usually private affairs. SOLOs have lower self-worth, so they sometimes push people away preemptively. They've built a Great Wall of 'Leave Me Alone' around their soul. Every brick is a past wound. They're like a hedgehog, hiding all soft parts and pointing spikes at the world. Those spikes aren't aggression; they're unsaid pleas: 'Don't come closer, I'm afraid you'll get hurt too' and 'Please... don't leave.'"
+  },
+  "FUCK": {
+    "code": "FUCK",
+    "cn": "The Wildcard",
+    "intro": "F*ck! What personality is this?",
+    "desc": "Congratulations! You don't even qualify as human! You've unlocked the one-in-a-million FUCK personality. In the garden of civilized humanity, a weed has grown that no herbicide can kill. Its scientific name is FUCK. In FUCK's world, societal norms are meaningless. Their emotional switch is a physical toggle: 'F*CK YEAH' and 'F*CK OFF.' They chase not just immediate pleasure, but a raw, visceral life force. When everyone else is domesticated poultry, FUCK is the last wolf howl in the wilderness."
+  },
+  "DEAD": {
+    "code": "DEAD",
+    "cn": "The Deceased",
+    "intro": "Am I... still alive?",
+    "desc": "Congratulations! You've unlocked the rarest personality, though 'DEAD' is a bit morbid. Let's call it: Don't Expect Any Drives. The Deceased have seen through all meaningless philosophy. They've lost interest in everything. They look at the world like a veteran gamer who beat the main story, all side quests, hidden bosses, and restarted 999 times, only to realize: 'This game kinda sucks.' DEAD is the ultimate sage who has transcended desire and goals. Their existence is the most silent, thorough protest against this noisy world."
+  },
+  "IMFW": {
+    "code": "IMFW",
+    "cn": "The Wreck",
+    "intro": "Am I... really a wreck?",
+    "desc": "Congratulations! You haven't just unlocked a personality; you've unlocked an extremely rare, 0.0001% specimen: The Wreck. Their self-esteem is fragile, insecure, sometimes lacking direction. Thus, they precisely detect the strongest WiFi signal nearby—i.e., the most reliable person in the room. Entering a Wreck's life is like entering an orchid greenhouse. It requires precise temperature, humidity, and daily verbal photosynthesis ('I love you' and 'You're doing great'). Give a Wreck a crumb of kindness, and they'll return a gaze of pure, sparkling trust. You might not be a wreck. You're just unguarded and take things too seriously."
+  },
+  "HHHH": {
+    "code": "HHHH",
+    "cn": "The Gigglebox",
+    "intro": "hahahahahaha.",
+    "desc": "Congratulations! Your neural pathways are so unique that the standard personality database has crashed. You only get matched with HHHH when the top match is under 60%. What are their traits? Hahahahahahahahaha! Sorry, that's all there is. Check the 15 dimensions for a semi-professional evaluation. The creator didn't account for brains this quirky. Hahahaha... laughing... but inside, I'm crying. How is someone's brain wiring this novel?"
+  },
+  "DRUNK": {
+    "code": "DRUNK",
+    "cn": "The Drunk",
+    "intro": "Strong liquor burns. Gotta stay drunk.",
+    "desc": "Why are you swaying? Why so emotional? Why is your vision doubled? Because your veins aren't filled with blood. They're filled with fine Kentucky Bourbon! With Don Julio 1942! With Pabst Blue Ribbon! Oh, sweet alcohol, every drop burns and boils. Have you gotten used to keeping vodka in your water bottle, sipping it like water? Glorious booze! It makes you a poet at the bar, an unstoppable fire at the center of the universe... until 10 AM the next morning, when your head is a cracked walnut and your soul is hiding in a corner. You realize the loud, table-slamming legend from last night was just a drunk."
+  }
+};
+
+    const TYPE_IMAGES = {
+  "IMSB": "./image/IMSB.png",
+  "BOSS": "./image/BOSS.png",
+  "MUM": "./image/MUM.png",
+  "FAKE": "./image/FAKE.png",
+  "Dior-s": "./image/Dior-s.jpg",
+  "DEAD": "./image/DEAD.png",
+  "ZZZZ": "./image/ZZZZ.png",
+  "GOGO": "./image/GOGO.png",
+  "FUCK": "./image/FUCK.png",
+  "CTRL": "./image/CTRL.png",
+  "HHHH": "./image/HHHH.png",
+  "SEXY": "./image/SEXY.png",
+  "OJBK": "./image/OJBK.png",
+  "JOKE-R": "./image/JOKE-R.jpg",
+  "POOR": "./image/POOR.png",
+  "OH-NO": "./image/OH-NO.png",
+  "MONK": "./image/MONK.png",
+  "SHIT": "./image/SHIT.png",
+  "THAN-K": "./image/THAN-K.png",
+  "MALO": "./image/MALO.png",
+  "ATM-er": "./image/ATM-er.png",
+  "THIN-K": "./image/THIN-K.png",
+  "SOLO": "./image/SOLO.png",
+  "LOVE-R": "./image/LOVE-R.png",
+  "WOC!": "./image/WOC.png",
+  "DRUNK": "./image/DRUNK.png",
+  "IMFW": "./image/IMFW.png"
+};
+
+    const NORMAL_TYPES = [
+  { "code": "CTRL", "pattern": "HHH-HMH-MHH-HHH-MHM" },
+  { "code": "ATM-er", "pattern": "HHH-HHM-HHH-HMH-MHL" },
+  { "code": "Dior-s", "pattern": "MHM-MMH-MHM-HMH-LHL" },
+  { "code": "BOSS", "pattern": "HHH-HMH-MMH-HHH-LHL" },
+  { "code": "THAN-K", "pattern": "MHM-HMM-HHM-MMH-MHL" },
+  { "code": "OH-NO", "pattern": "HHL-LMH-LHH-HHM-LHL" },
+  { "code": "GOGO", "pattern": "HHM-HMH-MMH-HHH-MHM" },
+  { "code": "SEXY", "pattern": "HMH-HHL-HMM-HMM-HLH" },
+  { "code": "LOVE-R", "pattern": "MLH-LHL-HLH-MLM-MLH" },
+  { "code": "MUM", "pattern": "MMH-MHL-HMM-LMM-HLL" },
+  { "code": "FAKE", "pattern": "HLM-MML-MLM-MLM-HLH" },
+  { "code": "OJBK", "pattern": "MMH-MMM-HML-LMM-MML" },
+  { "code": "MALO", "pattern": "MLH-MHM-MLH-MLH-LMH" },
+  { "code": "JOKE-R", "pattern": "LLH-LHL-LML-LLL-MLM" },
+  { "code": "WOC!", "pattern": "HHL-HMH-MMH-HHM-LHH" },
+  { "code": "THIN-K", "pattern": "HHL-HMH-MLH-MHM-LHH" },
+  { "code": "SHIT", "pattern": "HHL-HLH-LMM-HHM-LHH" },
+  { "code": "ZZZZ", "pattern": "MHL-MLH-LML-MML-LHM" },
+  { "code": "POOR", "pattern": "HHL-MLH-LMH-HHH-LHL" },
+  { "code": "MONK", "pattern": "HHL-LLH-LLM-MML-LHM" },
+  { "code": "IMSB", "pattern": "LLM-LMM-LLL-LLL-MLM" },
+  { "code": "SOLO", "pattern": "LML-LLH-LHL-LML-LHM" },
+  { "code": "FUCK", "pattern": "MLL-LHL-LLM-MLL-HLH" },
+  { "code": "DEAD", "pattern": "LLL-LLM-LML-LLL-LHM" },
+  { "code": "IMFW", "pattern": "LLH-LHL-LML-LLL-MLL" }
+];
+
+    const DIM_EXPLANATIONS = {
+  "S1": { "L": "You're harder on yourself than anyone else. A compliment feels like a lie detector test.", "M": "Self-esteem fluctuates with the barometric pressure. Fly high with the wind, duck when it storms.", "H": "You generally know your worth. A random comment won't knock you off course." },
+  "S2": { "L": "Your internal channel has a lot of static. 'Who am I?' is a recurring buffer loop.", "M": "Usually recognize yourself in the mirror, but strong emotions can log you into a different account.", "H": "You're clear on your temperament, desires, and boundaries." },
+  "S3": { "L": "Comfort and security matter more. No need to live life on Sprint Mode 24/7.", "M": "Want to grind, also want to nap. Internal committee meetings about priorities are frequent.", "H": "Easily motivated by goals, growth, or core beliefs that push you forward." },
+  "E1": { "L": "Your relationship alert system is sensitive. An unread receipt can write a whole tragic screenplay in your head.", "M": "Half trust, half test. A constant internal tug-of-war.", "H": "Willing to trust the bond itself. Small bumps don't scare you off." },
+  "E2": { "L": "Emotional investment is restrained. The door isn't closed, but security clearance is high.", "M": "You invest, but keep a parachute handy. Not going all-in on the first hand.", "H": "Once committed, you're all in. Time, emotion, energy—you give it freely." },
+  "E3": { "L": "You cling and don't mind being clung to. Warmth and closeness are essential.", "M": "Need both closeness and space. An adjustable dependency setting.", "H": "Personal space is vital. Even in love, you need a room of your own." },
+  "A1": { "L": "View the world through a defensive filter. Approach with caution first.", "M": "Neither naive nor fully conspiratorial. Observation is your default.", "H": "Willing to trust human nature and goodwill. You don't jump to the death penalty immediately." },
+  "A2": { "L": "Rules are suggestions. Comfort and freedom usually take the lead.", "M": "Follow when necessary, bend when convenient. No unnecessary friction.", "H": "Strong sense of order. You prefer process over chaotic improvisation." },
+  "A3": { "L": "Sense of meaning runs low. A lot of things feel like going through the motions.", "M": "Sometimes goals, sometimes 'meh.' Life compass is on standby mode.", "H": "Directional sense is stronger. You generally know which way is forward." },
+  "Ac1": { "L": "Risk assessment comes first. 'Don't crash' boots up before 'Let's win'.", "M": "Sometimes want the win, sometimes just want no trouble. Mixed motives.", "H": "Easily ignited by results, progress, and momentum." },
+  "Ac2": { "L": "Decisions involve multiple mental U-turns. Internal committee meetings often run overtime.", "M": "You think, but you don't crash. Normal levels of hesitation.", "H": "Quick trigger finger. Once decided, no looking back." },
+  "Ac3": { "L": "Your execution power has a deep, spiritual bond with deadlines. The later it is, the stronger you awaken.", "M": "Can get it done. Performance varies by mood and celestial alignment.", "H": "Strong urge to move things forward. Unfinished tasks feel like a splinter." },
+  "So1": { "L": "Social starter motor is slow. Initiating takes a full battery charge of courage.", "M": "Open if approached, fine if not. Social elasticity is moderate.", "H": "Willing to open the scene. Not afraid to step into the spotlight in a crowd." },
+  "So2": { "L": "Prefers merging and closeness. Once familiar, people are quickly absorbed into the inner circle.", "M": "Wants both closeness and a gap. Boundary settings are contextual.", "H": "Boundaries are firm. Instinctively steps back if someone gets too close too fast." },
+  "So3": { "L": "Direct expression. What's on the mind rarely takes a detour.", "M": "Reads the room. Usually serves a portion of truth with a side of tact.", "H": "Skilled at context-switching selves. Authenticity is distributed on a tiered basis." }
+};
+
+    const dimensionOrder = ['S1','S2','S3','E1','E2','E3','A1','A2','A3','Ac1','Ac2','Ac3','So1','So2','So3'];
+    const DRUNK_TRIGGER_QUESTION_ID = 'drink_gate_q2';
+
+    const app = {
+      shuffledQuestions: [],
+      answers: {},
+      previewMode: false
+    };
+
+    const screens = {
+      intro: document.getElementById('intro'),
+      test: document.getElementById('test'),
+      result: document.getElementById('result')
+    };
+
+    const questionList = document.getElementById('questionList');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const submitBtn = document.getElementById('submitBtn');
+    const testHint = document.getElementById('testHint');
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => {
+        el.classList.toggle('active', key === name);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function getVisibleQuestions() {
+      const visible = [...app.shuffledQuestions];
+      const gateIndex = visible.findIndex(q => q.id === 'drink_gate_q1');
+      if (gateIndex !== -1 && app.answers['drink_gate_q1'] === 3) {
+        visible.splice(gateIndex + 1, 0, specialQuestions[1]);
+      }
+      return visible;
+    }
+
+    function getQuestionMetaLabel(q) {
+      if (q.special) return 'Bonus Question';
+      return app.previewMode ? dimensionMeta[q.dim].name : 'Dimension Hidden';
+    }
+
+    function renderQuestions() {
+      const visibleQuestions = getVisibleQuestions();
+      questionList.innerHTML = '';
+      visibleQuestions.forEach((q, index) => {
+        const card = document.createElement('article');
+        card.className = 'question';
+        card.innerHTML = `
+          <div class="question-meta">
+            <div class="badge">Q${index + 1}</div>
+            <div>${getQuestionMetaLabel(q)}</div>
+          </div>
+          <div class="question-title">${q.text}</div>
+          <div class="options">
+            ${q.options.map((opt, i) => {
+              const code = ['A', 'B', 'C', 'D'][i] || String(i + 1);
+              const checked = app.answers[q.id] === opt.value ? 'checked' : '';
+              return `
+                <label class="option">
+                  <input type="radio" name="${q.id}" value="${opt.value}" ${checked} />
+                  <div class="option-code">${code}</div>
+                  <div>${opt.label}</div>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        `;
+        questionList.appendChild(card);
+      });
+
+      questionList.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const { name, value } = e.target;
+          app.answers[name] = Number(value);
+
+          if (name === 'drink_gate_q1') {
+            if (Number(value) !== 3) {
+              delete app.answers['drink_gate_q2'];
+            }
+            renderQuestions();
+            return;
+          }
+
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const visibleQuestions = getVisibleQuestions();
+      const total = visibleQuestions.length;
+      const done = visibleQuestions.filter(q => app.answers[q.id] !== undefined).length;
+      const percent = total ? (done / total) * 100 : 0;
+      progressBar.style.width = `${percent}%`;
+      progressText.textContent = `${done} / ${total}`;
+      const complete = done === total && total > 0;
+      submitBtn.disabled = !complete;
+      testHint.textContent = complete
+        ? 'All done. Time to let the results judge your digital soul.'
+        : 'Answer everything. The world\'s messy. At least finish this cleanly.';
+    }
+
+    function sumToLevel(score) {
+      if (score <= 3) return 'L';
+      if (score === 4) return 'M';
+      return 'H';
+    }
+
+    function levelNum(level) {
+      return { L: 1, M: 2, H: 3 }[level];
+    }
+
+    function parsePattern(pattern) {
+      return pattern.replace(/-/g, '').split('');
+    }
+
+    function getDrunkTriggered() {
+      return app.answers[DRUNK_TRIGGER_QUESTION_ID] === 2;
+    }
+
+    function computeResult() {
+      const rawScores = {};
+      const levels = {};
+      Object.keys(dimensionMeta).forEach(dim => { rawScores[dim] = 0; });
+
+      questions.forEach(q => {
+        rawScores[q.dim] += Number(app.answers[q.id] || 0);
+      });
+
+      Object.entries(rawScores).forEach(([dim, score]) => {
+        levels[dim] = sumToLevel(score);
+      });
+
+      const userVector = dimensionOrder.map(dim => levelNum(levels[dim]));
+      const ranked = NORMAL_TYPES.map(type => {
+        const vector = parsePattern(type.pattern).map(levelNum);
+        let distance = 0;
+        let exact = 0;
+        for (let i = 0; i < vector.length; i++) {
+          const diff = Math.abs(userVector[i] - vector[i]);
+          distance += diff;
+          if (diff === 0) exact += 1;
+        }
+        const similarity = Math.max(0, Math.round((1 - distance / 30) * 100));
+        return { ...type, ...TYPE_LIBRARY[type.code], distance, exact, similarity };
+      }).sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        if (b.exact !== a.exact) return b.exact - a.exact;
+        return b.similarity - a.similarity;
+      });
+
+      const bestNormal = ranked[0];
+      const drunkTriggered = getDrunkTriggered();
+
+      let finalType;
+      let modeKicker = 'Your Main Type';
+      let badge = `Match ${bestNormal.similarity}% · Exact hits ${bestNormal.exact}/15`;
+      let sub = 'High dimensional alignment. This can be considered your primary personality portrait.';
+      let special = false;
+      let secondaryType = null;
+
+      if (drunkTriggered) {
+        finalType = TYPE_LIBRARY.DRUNK;
+        secondaryType = bestNormal;
+        modeKicker = 'Hidden Personality Activated';
+        badge = 'Match 100% · Alcohol Anomaly Factor Detected';
+        sub = 'Ethanol affinity too strong. System has bypassed standard personality assessment.';
+        special = true;
+      } else if (bestNormal.similarity < 60) {
+        finalType = TYPE_LIBRARY.HHHH;
+        modeKicker = 'System Fallback';
+        badge = `Best Standard Match Only ${bestNormal.similarity}%`;
+        sub = 'The standard library gave up trying to figure you out. You\'ve been assigned HHHH by default.';
+        special = true;
+      } else {
+        finalType = bestNormal;
+      }
+
+      return {
+        rawScores,
+        levels,
+        ranked,
+        bestNormal,
+        finalType,
+        modeKicker,
+        badge,
+        sub,
+        special,
+        secondaryType
+      };
+    }
+
+    function renderDimList(result) {
+      const dimList = document.getElementById('dimList');
+      dimList.innerHTML = dimensionOrder.map(dim => {
+        const level = result.levels[dim];
+        const explanation = DIM_EXPLANATIONS[dim][level];
+        return `
+          <div class="dim-item">
+            <div class="dim-item-top">
+              <div class="dim-item-name">${dimensionMeta[dim].name}</div>
+              <div class="dim-item-score">${level} / ${result.rawScores[dim]} pts</div>
+            </div>
+            <p>${explanation}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderResult() {
+      const result = computeResult();
+      const type = result.finalType;
+
+      document.getElementById('resultModeKicker').textContent = result.modeKicker;
+      document.getElementById('resultTypeName').textContent = `${type.code} (${type.cn})`;
+      document.getElementById('matchBadge').textContent = result.badge;
+      document.getElementById('resultTypeSub').textContent = result.sub;
+      document.getElementById('resultDesc').textContent = type.desc;
+      document.getElementById('posterCaption').textContent = type.intro;
+      document.getElementById('funNote').textContent = result.special
+        ? 'For entertainment only. Hidden personalities and fallback modes are intentional jokes. Not valid for medical, psychological, or supernatural purposes.'
+        : 'For entertainment only. Do not use for diagnosis, hiring, dating, breakups, summoning spirits, or life sentencing. Laugh, but don\'t take it too seriously.';
+
+      const posterBox = document.getElementById('posterBox');
+      const posterImage = document.getElementById('posterImage');
+      const imageSrc = TYPE_IMAGES[type.code];
+      if (imageSrc) {
+        posterImage.src = imageSrc;
+        posterImage.alt = `${type.code} (${type.cn})`;
+        posterBox.classList.remove('no-image');
+      } else {
+        posterImage.removeAttribute('src');
+        posterImage.alt = '';
+        posterBox.classList.add('no-image');
+      }
+
+      renderDimList(result);
+      showScreen('result');
+    }
+
+    function startTest(preview = false) {
+      app.previewMode = preview;
+      app.answers = {};
+      const shuffledRegular = shuffle(questions);
+      const insertIndex = Math.floor(Math.random() * shuffledRegular.length) + 1;
+      app.shuffledQuestions = [
+        ...shuffledRegular.slice(0, insertIndex),
+        specialQuestions[0],
+        ...shuffledRegular.slice(insertIndex)
+      ];
+      renderQuestions();
+      showScreen('test');
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => startTest(false));
+    document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
+    document.getElementById('submitBtn').addEventListener('click', renderResult);
+    document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
+    document.getElementById('toTopBtn').addEventListener('click', () => showScreen('intro'));
+  </script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "d44d4fe6b56c4b46892c3f789d8ac0c5"}'></script></body>
+</html>
